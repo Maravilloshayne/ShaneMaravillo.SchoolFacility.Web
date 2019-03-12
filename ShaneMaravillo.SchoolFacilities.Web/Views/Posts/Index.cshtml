@@ -1,0 +1,40 @@
+﻿@model ShaneMaravillo.SchoolFacilities.Web.ViewModels.IndexViewModel
+@using ShaneMaravillo.SchoolFacilities.Web.Infrastructures.Data.Security;
+@using ShaneMaravillo.SchoolFacilities.Web.Infrastructures.Data.Models
+@{
+    Layout = "~/Views/Shared/_BlogWithWidgets.cshtml";
+}
+
+
+Welcome @WebUser.FullName
+
+<h1>Announcements</h1>
+<section class="posts-con">
+    @{
+        foreach (Post post in Model.Posts)
+        {
+            <article>
+                <div class="info">
+                    <img class="card-img-top" src="~/posts/@post.Id/shane3.png.jpg" alt="Card image cap" style="max-width:750px;max-height:300px;">
+                    <h3>@post.Title</h3>
+                    <p class="info-line"><span class="time">@post.Timestamp.ToString("dddd, dd MMMM yyyy hh:mm tt")</span></p>
+                    <p>@post.Description</p>
+                    <p><a href="#" class="btn btn-primary">Read More &rarr;</a></p>
+                </div>
+            </article>
+        }
+
+
+    }
+    }
+
+</section>
+<!-- Pagination -->
+<ul class="pagination justify-content-center mb-4">
+    <li class="page-item">
+        <a class="page-link" href="#">&larr; Older</a>
+    </li>
+    <li class="page-item disabled">
+        <a class="page-link" href="#">Newer &rarr;</a>
+    </li>
+</ul>

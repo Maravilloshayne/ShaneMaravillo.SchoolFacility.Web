@@ -1,0 +1,220 @@
+﻿@using ShaneMaravillo.SchoolFacilities.Web.Infrastructures.Data.Models;
+@model ShaneMaravillo.SchoolFacilities.Web.Areas.Manage.ViewModels.Posts.IndexViewModel
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_PublicLayout.cshtml";
+}
+
+<h2>Manage Posts</h2>
+
+<div class="card-container col-md-8">
+    <div class="card">
+        <div class="card-body">
+            <div class="input-group mb-3">
+                <input id="searchKeyword" type="text" class="form-control" value="@Model.Posts.Keyword" placeholder="Search by title" aria-label="Search title" aria-describedby="basic-addon2">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="button" onclick="searchTrigger()">Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @{
+        if (Model.Posts != null)
+        {
+            if (Model.Posts.Items.Count > 0)
+            {
+                foreach (Post post in Model.Posts.Items)
+                {
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <img src="~/posts/@post.Id/Shane3.png.jpg" style="width:150px;height:150px;" />
+                                </div>
+                                <div class="col-sm-9">
+                                    <h4>@post.Title</h4>
+                                    <p>@post.Description</p>
+                                    <ul class="list-inline">
+                                        <li class="list-inline-item"><a href="~/manage/posts/update-banner/@post.Id" title="Upload Banner"><button class="btn-success form-control-sm"><i class="fas fa-image"></i></button></a></li>
+                                        <li class="list-inline-item"><a href="~/manage/posts/update-thumbnail/@post.Id" title="Upload Thumbnail"><button class="btn-success form-control-sm"><i class="fas fa-file-image"></i></button></a></li>
+                                        <li class="list-inline-item"><a href="~/manage/posts/update-content/@post.Id" title="Update Content"><button class="btn-success form-control-sm"><i class="fas fa-file-alt"></i></button></a></li>
+                                        <li class="list-inline-item"><a href="~/manage/posts/update-title/@post.Id" title="Update Title"><button class="btn-success form-control-sm"><i class="fas fa-pen-alt"></i></button></a></li>
+                                        @{
+                                            if (post.IsPublished)
+                                            {
+                                                <li class="list-inline-item"><a href="#" title="Unpublish" onclick="confirmUnpublish('@post.Id','@post.Title')"><button class="btn-danger form-control-sm"><i class="fas fa-window-close"></i></button></a></li>
+                                            }
+                                            else
+                                            {
+                                                <li class="list-inline-item"><a href="#" title="Publish" onclick="confirmPublish('@post.Id','@post.Title')"><button class="btn-success form-control-sm"><i class="fas fa-check-square"></i></button></a></li>
+                                            }
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+
+
+                <ul class="pagination">
+                    <li class="page-item"><a class="page-link" href="~/manage/posts?pageIndex=1">First</a></li>
+                    @{ if (Model.Posts.PageIndex > 1)
+                        {
+                            <li class="page-item"><a class="page-link" href="~/manage/posts?pageIndex=@(Model.Posts.PageIndex - 1)">@(Model.Posts.PageIndex - 1)</a></li>
+                        }
+                    }
+                    <li class="page-item"><a class="page-link active href="#">@(Model.Posts.PageIndex)</a></li>
+                    @{ if ((Model.Posts.PageIndex + 1) <= Model.Posts.PageCount)
+                        {
+                            <li class="page-item"><a class="page-link" href="~/manage/posts?pageIndex=@(Model.Posts.PageIndex + 1)">@(Model.Posts.PageIndex + 1)</a></li>
+                        }
+                    }
+                    <li class="page-item"><a class="page-link" href="~/manage/posts?pageIndex=@Model.Posts.PageCount">Last</a></li>
+                </ul>
+            }
+        }
+    }
+
+</div>
+
+<!--MODAL-->
+<div class="modal" tabindex="-1" role="dialog" id="modal-unpublish">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Unpublish Post</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to unpublish <span id="modal-unpublish-title"></span>?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" id="modal-unpublish-button">Yes</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--MODAL-->
+<div class="modal" tabindex="-1" role="dialog" id="modal-publish">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Publish Post</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to publish <span id="modal-publish-title"></span>?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" id="modal-publish-button">Yes</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section pageStyles{
+    <style>
+        h2 {
+            margin-top: 30px;
+        }
+
+        .card-container {
+            margin-bottom: 30px;
+        }
+
+        .card {
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+    </style>
+}
+
+
+@section pageScripts{
+    <script>
+
+        //////////////////////SEARCH/////////////////////////////////////////////////////////////////
+        function searchTrigger() {
+            window.location = "/manage/posts?pageIndex=1&keyword=" + $("#searchKeyword").val();
+        }
+
+        $("#searchKeyword").keyup(function (event) {
+            if (event.keyCode === 13) {
+                searchTrigger();
+            }
+        });
+
+
+        ////////////////////UNPUBLISH/////////////////////////////////////////////////////////////////
+        function confirmUnpublish(id, title) {
+            $("#modal-unpublish-title").html(title);
+            $("#modal-unpublish-button").attr("onclick", "unPublishPost('" + id + "')");
+            $("#modal-unpublish").modal("show");
+        }
+
+        function unPublishPost(id) {
+            $.ajax({
+                type: "POST",
+                url: "/manage/posts/unpublish",
+                data: { id: id },
+                success: function (data) {
+                    location.reload();
+                },
+                error: function (xhr) {
+                    var response = JSON.parse(xhr.responseText);
+                    alert("Error Occured : " + response.errors[0]);
+                    location.reload();
+                }
+            });
+        }
+
+        //////////////////PUBLISH///////////////////////////////////////////////////////////////////////
+        function confirmPublish(id, title) {
+            $("#modal-publish-title").html(title);
+            $("#modal-publish-button").attr("onclick", "publishPost('" + id + "')");
+            $("#modal-publish").modal("show");
+        }
+
+        function publishPost(id) {
+            $.ajax({
+                type: "POST",
+                url: "/manage/posts/publish",
+                data: { id: id },
+                success: function (data) {
+                    location.reload();
+                },
+                error: function (xhr) {
+                    var response = JSON.parse(xhr.responseText);
+                    alert("Error Occured : " + response.errors[0]);
+                    location.reload();
+                }
+            });
+        }
+    </script>
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
